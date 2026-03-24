@@ -14,8 +14,8 @@ export const registerSchema = z.object({
 export const createReservationSchema = z.object({
   spaceId: z.string().min(1, "Selecciona un espacio"),
   title: z.string().optional(),
-  startTime: z.string().datetime(),
-  endTime: z.string().datetime(),
+  startTime: z.string().datetime({ local: true }),
+  endTime: z.string().datetime({ local: true }),
 })
 
 export const createSpaceSchema = z.object({
