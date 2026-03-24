@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(cuid())
+  name         String
+  email        String        @unique
+  passwordHash String
+  role         String        @default("user")
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  reservations Reservation[]
+}
+
+model SpaceType {
+  id              String   @id @default(cuid())
+  name            String   @unique
+  label           String
+  color           String
+  icon            String
+  minBlockMinutes Int      @default(30)
+  spaces          Space[]
+  createdAt       DateTime @default(now())
+}
+
+model Space {
+  id            String        @id @default(cuid())
+  name          String
+  description   String?
+  capacity      Int           @default(1)
+  spaceTypeId   String
+  spaceType     SpaceType     @relation(fields: [spaceTypeId], references: [id])
+  floorX        Float         @default(0)
+  floorY        Float         @default(0)
+  floorWidth    Float         @default(100)
+  floorHeight   Float         @default(80)
+  floorRotation Float         @default(0)
+  isActive      Boolean       @default(true)
+  reservations  Reservation[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([spaceTypeId])
+}
+
+model Reservation {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  spaceId   String
+  space     Space    @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  title     String?
+  startTime DateTime
+  endTime   DateTime
+  status    String   @default("confirmed")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([spaceId, startTime, endTime])
+  @@index([userId])
+  @@index([startTime])
+}
